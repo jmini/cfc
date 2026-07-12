@@ -195,32 +195,33 @@
 
        col   : colonne d'affichage (1 & 2 = BOISSONS, 3 = RESTAURATION)
        label : texte affiché sur la pastille
-       price  : prix de vente unitaire en euros
-       bg/fg  : couleur de fond / couleur du texte de la pastille
-       shape  : "circle" (boisson) ou "rect" (restauration)
+       price : prix de vente unitaire en euros
+       max   : limite de quantité vendable pour cet article (stock max)
+       bg/fg : couleur de fond / couleur du texte de la pastille
+       shape : "circle" (boisson) ou "rect" (restauration)
      ======================================================================= */
   const ARTICLES = [
     // --- Colonne 1 (BOISSONS) ---
-    { col: 1, label: "BIÈRE",            price: 3.00, bg: "#f5e000", fg: "#000", shape: "circle" },
-    { col: 1, label: "CIDRE",            price: 3.50, bg: "#f0a35a", fg: "#000", shape: "circle" },
-    { col: 1, label: "JUS de POMME",     price: 2.50, bg: "#f08a24", fg: "#000", shape: "circle" },
-    { col: 1, label: "SOFT",             price: 2.00, bg: "#ffffff", fg: "#000", shape: "circle" },
-    { col: 1, label: "CAFÉ",             price: 1.00, bg: "#000000", fg: "#fff", shape: "circle" },
-    { col: 1, label: "GOBELET",          price: 1.00, bg: "#e3e3f5", fg: "#5a2fa0", shape: "circle" },
+    { col: 1, label: "BIÈRE",            price: 3.00, max: 30, bg: "#f5e000", fg: "#000", shape: "circle" },
+    { col: 1, label: "CIDRE",            price: 3.50, max: 30, bg: "#f0a35a", fg: "#000", shape: "circle" },
+    { col: 1, label: "JUS de POMME",     price: 2.50, max: 30, bg: "#f08a24", fg: "#000", shape: "circle" },
+    { col: 1, label: "SOFT",             price: 2.00, max: 30, bg: "#ffffff", fg: "#000", shape: "circle" },
+    { col: 1, label: "CAFÉ",             price: 1.00, max: 30, bg: "#000000", fg: "#fff", shape: "circle" },
+    { col: 1, label: "GOBELET",          price: 1.00, max: 50, bg: "#e3e3f5", fg: "#5a2fa0", shape: "circle" },
 
     // --- Colonne 2 (BOISSONS) ---
-    { col: 2, label: "EAU",              price: 1.00, bg: "#2e6db4", fg: "#fff", shape: "circle" },
-    { col: 2, label: "Bouteille ROUGE",  price: 9.00, bg: "#c00000", fg: "#fff", shape: "circle" },
-    { col: 2, label: "Bouteille ROSÉ",   price: 9.00, bg: "#e0218a", fg: "#fff", shape: "circle" },
-    { col: 2, label: "VERRE VIN ou KIR", price: 2.00, bg: "#7cb342", fg: "#000", shape: "circle" },
-    { col: 2, label: "",                 price: 0.00, bg: "#bdbdbd", fg: "#000", shape: "circle", empty: true },
+    { col: 2, label: "EAU",              price: 1.00, max: 30, bg: "#2e6db4", fg: "#fff", shape: "circle" },
+    { col: 2, label: "Bouteille ROUGE",  price: 9.00, max: 20, bg: "#c00000", fg: "#fff", shape: "circle" },
+    { col: 2, label: "Bouteille ROSÉ",   price: 9.00, max: 20, bg: "#e0218a", fg: "#fff", shape: "circle" },
+    { col: 2, label: "VERRE VIN ou KIR", price: 2.00, max: 30, bg: "#7cb342", fg: "#000", shape: "circle" },
+    { col: 2, label: "",                 price: 0.00, max: 0,  bg: "#bdbdbd", fg: "#000", shape: "circle", empty: true },
 
     // --- Colonne 3 (RESTAURATION) ---
-    { col: 3, label: "PLATEAU REPAS",    price: 20.00, bg: "#000000", fg: "#fff", shape: "rect" },
-    { col: 3, label: "SANDWICH",         price: 4.00,  bg: "#e00000", fg: "#fff", shape: "rect" },
-    { col: 3, label: "FRITES",           price: 2.50,  bg: "#f5e000", fg: "#000", shape: "rect" },
-    { col: 3, label: "CRÊPE",            price: 1.50,  bg: "#f08a24", fg: "#000", shape: "rect" },
-    { col: 3, label: "",                 price: 0.00,  bg: "#bdbdbd", fg: "#000", shape: "rect", empty: true },
+    { col: 3, label: "PLATEAU REPAS",    price: 20.00, max: 20, bg: "#000000", fg: "#fff", shape: "rect" },
+    { col: 3, label: "SANDWICH",         price: 4.00,  max: 30, bg: "#e00000", fg: "#fff", shape: "rect" },
+    { col: 3, label: "FRITES",           price: 2.50,  max: 30, bg: "#f5e000", fg: "#000", shape: "rect" },
+    { col: 3, label: "CRÊPE",            price: 1.50,  max: 30, bg: "#f08a24", fg: "#000", shape: "rect" },
+    { col: 3, label: "",                 price: 0.00,  max: 0,  bg: "#bdbdbd", fg: "#000", shape: "rect", empty: true },
   ];
   /* ===================== FIN SECTION PRIX DE VENTE ===================== */
 
@@ -282,6 +283,8 @@
 
     if (!article.empty) {
       up.addEventListener("click", () => {
+        // Respecte la limite de quantité définie dans la SECTION PRIX DE VENTE
+        if (quantities[index] >= article.max) return;
         quantities[index]++;
         qty.textContent = quantities[index];
         updateTotal();
