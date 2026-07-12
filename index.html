@@ -27,13 +27,20 @@
       margin: 0 auto;
     }
 
-    /* ---------- Barre du haut : RAZ + TOTAL ---------- */
+    /* ---------- Barre du haut : RAZ + TOTAL (toujours visible) ---------- */
     .topbar {
       display: grid;
       grid-template-columns: auto 1fr auto;
       gap: 8px;
       align-items: stretch;
-      margin-bottom: 16px;
+      /* Reste collée en haut de l'écran pendant le défilement */
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background: #fff;
+      padding: 8px 0;
+      margin-bottom: 8px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, .15);
     }
 
     .btn-raz {
