@@ -211,7 +211,7 @@
     // --- Colonne 2 (BOISSONS) ---
     { col: 2, label: "EAU",              price: 1.00, bg: "#2e6db4", fg: "#fff", shape: "circle" },
     { col: 2, label: "Bouteille ROUGE",  price: 9.00, bg: "#c00000", fg: "#fff", shape: "circle" },
-    { col: 2, label: "Bouteille ROSÉ",   price: 9.00, bg: "#ff5fa2", fg: "#fff", shape: "circle" },
+    { col: 2, label: "Bouteille ROSÉ",   price: 9.00, bg: "#e0218a", fg: "#fff", shape: "circle" },
     { col: 2, label: "VERRE VIN ou KIR", price: 2.00, bg: "#7cb342", fg: "#000", shape: "circle" },
     { col: 2, label: "",                 price: 0.00, bg: "#bdbdbd", fg: "#000", shape: "circle", empty: true },
 
@@ -251,6 +251,10 @@
     inner.textContent = article.label;
     inner.style.background = article.bg;
     inner.style.color = article.fg;
+    // Contour sombre sur les textes blancs pour garantir la lisibilité
+    if (article.fg.toLowerCase() === "#fff" || article.fg.toLowerCase() === "#ffffff") {
+      inner.style.textShadow = "0 0 2px #000, 0 1px 1px rgba(0,0,0,.8)";
+    }
     if (article.shape === "rect") {
       inner.style.display = "block";
       inner.style.width = "100%";
