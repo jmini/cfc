@@ -167,6 +167,9 @@
       font-size: 11px;
       line-height: 1;
       padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-touch-callout: none;
     }
     .btn-plus  { grid-column: 3; grid-row: 1; border-bottom: 1px solid var(--border); }
     .btn-moins { grid-column: 3; grid-row: 2; }
@@ -434,6 +437,36 @@
     return (0.299 * r + 0.587 * g + 0.114 * b) > 150;
   }
 
+  // Ajoute une action répétée en pression longue (souris + tactile) :
+  // 1 action au premier appui, puis répétition tant que le bouton reste enfoncé.
+  function attachRepeat(btn, action) {
+    const DELAI_INITIAL = 400; // ms avant le début de la répétition
+    const INTERVALLE = 90;     // ms entre deux répétitions
+    let timeout = null;
+    let interval = null;
+
+    const stop = () => {
+      clearTimeout(timeout);
+      clearInterval(interval);
+      timeout = interval = null;
+    };
+    const start = (e) => {
+      if (e.pointerType === "mouse" && e.button !== 0) return; // clic gauche only
+      e.preventDefault();
+      action();
+      timeout = setTimeout(() => { interval = setInterval(action, INTERVALLE); }, DELAI_INITIAL);
+    };
+
+    btn.addEventListener("pointerdown", start);
+    btn.addEventListener("pointerup", stop);
+    btn.addEventListener("pointerleave", stop);
+    btn.addEventListener("pointercancel", stop);
+    // Accessibilité clavier (Entrée / Espace, avec répétition native au maintien)
+    btn.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") { e.preventDefault(); action(); }
+    });
+  }
+
   function buildCell(article, index) {
     const cell = document.createElement("div");
     cell.className = "cell";
@@ -483,14 +516,14 @@
     down.textContent = "−";
     down.setAttribute("aria-label", "Retirer " + article.libelle);
 
-    up.addEventListener("click", () => {
-      // Respecte la limite de quantité définie dans la SECTION PRIX DE VENTE
+    // Respecte la limite de quantité définie dans la SECTION PRIX DE VENTE
+    attachRepeat(up, () => {
       if (quantities[index] >= article.limite) return;
       quantities[index]++;
       qty.textContent = quantities[index];
       updateTotal();
     });
-    down.addEventListener("click", () => {
+    attachRepeat(down, () => {
       if (quantities[index] > 0) {
         quantities[index]--;
         qty.textContent = quantities[index];
