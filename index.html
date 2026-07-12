@@ -219,7 +219,18 @@
       }
       .cell .btn-plus  { border-left: 1px solid var(--border); }
       .cell .btn-moins { border-right: 1px solid var(--border); }
-      .badge.circle span { width: 46px; height: 46px; }
+
+      /* Libellé sur une seule ligne, police plus grande, débordement autorisé */
+      .cell .badge {
+        font-size: 17px;
+        overflow: visible;
+      }
+      .cell .badge span { white-space: nowrap; }
+      .cell .badge.circle span {
+        width: 46px;
+        height: 46px;
+        overflow: visible;   /* le texte peut dépasser du cercle de fond */
+      }
     }
   </style>
 </head>
