@@ -234,8 +234,8 @@
     }
 
     /* ======================= MODALE TICKET DE CAISSE ======================= */
-    #total { cursor: pointer; }
-    #total:hover { filter: brightness(1.2); }
+    .total-label, .total-value { cursor: pointer; }
+    .total-label:hover, .total-value:hover { filter: brightness(1.2); }
 
     .modal-overlay {
       display: none;
@@ -598,13 +598,15 @@
   function openTicket() { renderTicket(); modal.classList.add("open"); }
   function closeTicket() { modal.classList.remove("open"); }
 
-  // Ouverture au clic (et au clavier) sur le montant total
-  totalEl.setAttribute("role", "button");
-  totalEl.setAttribute("tabindex", "0");
-  totalEl.setAttribute("title", "Voir le détail de la vente");
-  totalEl.addEventListener("click", openTicket);
-  totalEl.addEventListener("keydown", (e) => {
-    if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openTicket(); }
+  // Ouverture au clic (et au clavier) sur le libellé « TOTAL : » et le montant
+  document.querySelectorAll(".total-label, .total-value").forEach((el) => {
+    el.setAttribute("role", "button");
+    el.setAttribute("tabindex", "0");
+    el.setAttribute("title", "Voir le détail de la vente");
+    el.addEventListener("click", openTicket);
+    el.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openTicket(); }
+    });
   });
 
   // Fermeture : bouton ✕, clic sur le fond, touche Échap
