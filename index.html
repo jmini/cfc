@@ -193,35 +193,37 @@
      les tarifs. Les emplacements "empty: true" sont des cases réservées
      (non vendables) pour atteindre les 16 emplacements de la maquette.
 
-       col   : colonne d'affichage (1 & 2 = BOISSONS, 3 = RESTAURATION)
-       label : texte affiché sur la pastille
-       price : prix de vente unitaire en euros
-       max   : limite de quantité vendable pour cet article (stock max)
-       bg/fg : couleur de fond / couleur du texte de la pastille
-       shape : "circle" (boisson) ou "rect" (restauration)
+       colonne      : colonne d'affichage (1 & 2 = BOISSONS, 3 = RESTAURATION)
+       libelle      : texte affiché sur la pastille
+       prix         : prix de vente unitaire en euros
+       limite       : quantité maximale vendable pour cet article (stock max)
+       couleurFond  : couleur de fond de la pastille
+       couleurTexte : couleur du texte de la pastille
+       forme        : "cercle" (boisson) ou "rectangle" (restauration)
+       reserve      : true pour un emplacement réservé (non vendable)
      ======================================================================= */
   const ARTICLES = [
     // --- Colonne 1 (BOISSONS) ---
-    { col: 1, label: "BIÈRE",            price: 3.00, max: 30, bg: "#f5e000", fg: "#000", shape: "circle" },
-    { col: 1, label: "CIDRE",            price: 3.50, max: 30, bg: "#f0a35a", fg: "#000", shape: "circle" },
-    { col: 1, label: "JUS de POMME",     price: 2.50, max: 30, bg: "#f08a24", fg: "#000", shape: "circle" },
-    { col: 1, label: "SOFT",             price: 2.00, max: 30, bg: "#ffffff", fg: "#000", shape: "circle" },
-    { col: 1, label: "CAFÉ",             price: 1.00, max: 30, bg: "#000000", fg: "#fff", shape: "circle" },
-    { col: 1, label: "GOBELET",          price: 1.00, max: 50, bg: "#e3e3f5", fg: "#5a2fa0", shape: "circle" },
+    { colonne: 1, libelle: "BIÈRE",            prix: 3.00, limite: 30, couleurFond: "#f5e000", couleurTexte: "#000", forme: "cercle" },
+    { colonne: 1, libelle: "CIDRE",            prix: 3.50, limite: 30, couleurFond: "#f0a35a", couleurTexte: "#000", forme: "cercle" },
+    { colonne: 1, libelle: "JUS de POMME",     prix: 2.50, limite: 30, couleurFond: "#f08a24", couleurTexte: "#000", forme: "cercle" },
+    { colonne: 1, libelle: "SOFT",             prix: 2.00, limite: 30, couleurFond: "#ffffff", couleurTexte: "#000", forme: "cercle" },
+    { colonne: 1, libelle: "CAFÉ",             prix: 1.00, limite: 30, couleurFond: "#000000", couleurTexte: "#fff", forme: "cercle" },
+    { colonne: 1, libelle: "GOBELET",          prix: 1.00, limite: 50, couleurFond: "#e3e3f5", couleurTexte: "#5a2fa0", forme: "cercle" },
 
     // --- Colonne 2 (BOISSONS) ---
-    { col: 2, label: "EAU",              price: 1.00, max: 30, bg: "#2e6db4", fg: "#fff", shape: "circle" },
-    { col: 2, label: "Bouteille ROUGE",  price: 9.00, max: 20, bg: "#c00000", fg: "#fff", shape: "circle" },
-    { col: 2, label: "Bouteille ROSÉ",   price: 9.00, max: 20, bg: "#e0218a", fg: "#fff", shape: "circle" },
-    { col: 2, label: "VERRE VIN ou KIR", price: 2.00, max: 30, bg: "#7cb342", fg: "#000", shape: "circle" },
-    { col: 2, label: "",                 price: 0.00, max: 0,  bg: "#bdbdbd", fg: "#000", shape: "circle", empty: true },
+    { colonne: 2, libelle: "EAU",              prix: 1.00, limite: 30, couleurFond: "#2e6db4", couleurTexte: "#fff", forme: "cercle" },
+    { colonne: 2, libelle: "Bouteille ROUGE",  prix: 9.00, limite: 20, couleurFond: "#c00000", couleurTexte: "#fff", forme: "cercle" },
+    { colonne: 2, libelle: "Bouteille ROSÉ",   prix: 9.00, limite: 20, couleurFond: "#e0218a", couleurTexte: "#fff", forme: "cercle" },
+    { colonne: 2, libelle: "VERRE VIN ou KIR", prix: 2.00, limite: 30, couleurFond: "#7cb342", couleurTexte: "#000", forme: "cercle" },
+    { colonne: 2, libelle: "",                 prix: 0.00, limite: 0,  couleurFond: "#bdbdbd", couleurTexte: "#000", forme: "cercle", reserve: true },
 
     // --- Colonne 3 (RESTAURATION) ---
-    { col: 3, label: "PLATEAU REPAS",    price: 20.00, max: 20, bg: "#000000", fg: "#fff", shape: "rect" },
-    { col: 3, label: "SANDWICH",         price: 4.00,  max: 30, bg: "#e00000", fg: "#fff", shape: "rect" },
-    { col: 3, label: "FRITES",           price: 2.50,  max: 30, bg: "#f5e000", fg: "#000", shape: "rect" },
-    { col: 3, label: "CRÊPE",            price: 1.50,  max: 30, bg: "#f08a24", fg: "#000", shape: "rect" },
-    { col: 3, label: "",                 price: 0.00,  max: 0,  bg: "#bdbdbd", fg: "#000", shape: "rect", empty: true },
+    { colonne: 3, libelle: "PLATEAU REPAS",    prix: 20.00, limite: 20, couleurFond: "#000000", couleurTexte: "#fff", forme: "rectangle" },
+    { colonne: 3, libelle: "SANDWICH",         prix: 4.00,  limite: 30, couleurFond: "#e00000", couleurTexte: "#fff", forme: "rectangle" },
+    { colonne: 3, libelle: "FRITES",           prix: 2.50,  limite: 30, couleurFond: "#f5e000", couleurTexte: "#000", forme: "rectangle" },
+    { colonne: 3, libelle: "CRÊPE",            prix: 1.50,  limite: 30, couleurFond: "#f08a24", couleurTexte: "#000", forme: "rectangle" },
+    { colonne: 3, libelle: "",                 prix: 0.00,  limite: 0,  couleurFond: "#bdbdbd", couleurTexte: "#000", forme: "rectangle", reserve: true },
   ];
   /* ===================== FIN SECTION PRIX DE VENTE ===================== */
 
@@ -236,27 +238,27 @@
 
   function updateTotal() {
     let total = 0;
-    ARTICLES.forEach((a, i) => { total += a.price * quantities[i]; });
+    ARTICLES.forEach((a, i) => { total += a.prix * quantities[i]; });
     totalEl.textContent = formatEuros(total);
   }
 
   function buildCell(article, index) {
     const cell = document.createElement("div");
-    cell.className = "cell" + (article.empty ? " empty" : "");
-    cell.style.setProperty("--strip", article.bg);
+    cell.className = "cell" + (article.reserve ? " empty" : "");
+    cell.style.setProperty("--strip", article.couleurFond);
 
     // Pastille / libellé
     const badge = document.createElement("div");
-    badge.className = "badge " + (article.shape === "circle" ? "circle" : "rect");
+    badge.className = "badge " + (article.forme === "cercle" ? "circle" : "rect");
     const inner = document.createElement("span");
-    inner.textContent = article.label;
-    inner.style.background = article.bg;
-    inner.style.color = article.fg;
+    inner.textContent = article.libelle;
+    inner.style.background = article.couleurFond;
+    inner.style.color = article.couleurTexte;
     // Contour sombre sur les textes blancs pour garantir la lisibilité
-    if (article.fg.toLowerCase() === "#fff" || article.fg.toLowerCase() === "#ffffff") {
+    if (article.couleurTexte.toLowerCase() === "#fff" || article.couleurTexte.toLowerCase() === "#ffffff") {
       inner.style.textShadow = "0 0 2px #000, 0 1px 1px rgba(0,0,0,.8)";
     }
-    if (article.shape === "rect") {
+    if (article.forme === "rectangle") {
       inner.style.display = "block";
       inner.style.width = "100%";
       inner.style.padding = "10px 4px";
@@ -275,16 +277,16 @@
     const up = document.createElement("button");
     up.type = "button";
     up.textContent = "▲";
-    up.setAttribute("aria-label", "Ajouter " + article.label);
+    up.setAttribute("aria-label", "Ajouter " + article.libelle);
     const down = document.createElement("button");
     down.type = "button";
     down.textContent = "▼";
-    down.setAttribute("aria-label", "Retirer " + article.label);
+    down.setAttribute("aria-label", "Retirer " + article.libelle);
 
-    if (!article.empty) {
+    if (!article.reserve) {
       up.addEventListener("click", () => {
         // Respecte la limite de quantité définie dans la SECTION PRIX DE VENTE
-        if (quantities[index] >= article.max) return;
+        if (quantities[index] >= article.limite) return;
         quantities[index]++;
         qty.textContent = quantities[index];
         updateTotal();
@@ -319,7 +321,7 @@
   const cells = [];
   ARTICLES.forEach((article, index) => {
     const cell = buildCell(article, index);
-    columns[article.col].appendChild(cell);
+    columns[article.colonne].appendChild(cell);
     cells.push(cell);
   });
 
