@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Éditeur des articles — Calculette de vente</title>
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      padding: 16px;
+      font-family: Arial, Helvetica, sans-serif;
+      background: #f4f4f4;
+      color: #1a1a1a;
+    }
+
+    h1 { font-size: 22px; margin: 0 0 4px; }
+    .intro { color: #555; font-size: 14px; margin: 0 0 16px; max-width: 900px; }
+
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    button {
+      font-family: inherit;
+      font-size: 14px;
+      padding: 7px 14px;
+      border: 1px solid #888;
+      border-radius: 4px;
+      background: #fff;
+      cursor: pointer;
+    }
+    button:hover { background: #eaeaea; }
+    button.primary { background: #2f5e26; color: #fff; border-color: #2f5e26; }
+    button.primary:hover { background: #24491d; }
+    button.danger { color: #c00; border-color: #c99; }
+    button.small { padding: 3px 8px; font-size: 12px; }
+
+    .count-badge {
+      font-size: 13px;
+      padding: 4px 10px;
+      border-radius: 12px;
+      background: #ddd;
+      color: #333;
+    }
+    .count-badge.ok { background: #cfe8c4; color: #2f5e26; }
+    .count-badge.warn { background: #ffe0a3; color: #8a5a00; }
+
+    /* ---------- Tableau d'édition ---------- */
+    .table-wrap { overflow-x: auto; background: #fff; border: 1px solid #ccc; border-radius: 6px; }
+    table { border-collapse: collapse; width: 100%; min-width: 900px; }
+    th, td { padding: 6px 8px; border-bottom: 1px solid #e2e2e2; text-align: left; font-size: 13px; vertical-align: middle; }
+    th { background: #efefef; font-size: 12px; text-transform: uppercase; letter-spacing: .5px; color: #555; position: sticky; top: 0; }
+
+    td input[type="text"],
+    td input[type="number"],
+    td select {
+      font-family: inherit;
+      font-size: 13px;
+      padding: 4px 6px;
+      border: 1px solid #bbb;
+      border-radius: 3px;
+      width: 100%;
+    }
+    td input[type="number"] { width: 70px; }
+    td input[type="color"] { width: 40px; height: 30px; padding: 0; border: 1px solid #bbb; border-radius: 3px; cursor: pointer; background: #fff; }
+    td.libelle input { min-width: 150px; }
+
+    .actions-cell { white-space: nowrap; }
+    .actions-cell button { margin-right: 2px; }
+
+    .preview-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      font-weight: bold;
+      font-size: 11px;
+      line-height: 1.05;
+      min-width: 46px;
+      min-height: 46px;
+      max-width: 90px;
+      padding: 4px;
+      border: 2px solid rgba(0,0,0,.5);
+    }
+    .preview-badge.cercle { border-radius: 50%; width: 46px; height: 46px; overflow: hidden; }
+    .preview-badge.rectangle { border-radius: 2px; }
+    tr.reserve td { background: #fafafa; color: #999; }
+
+    /* ---------- Sortie code ---------- */
+    .output-section { margin-top: 20px; }
+    .output-head { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+    .output-head h2 { font-size: 16px; margin: 0; }
+    textarea {
+      width: 100%;
+      min-height: 260px;
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+      font-size: 12.5px;
+      line-height: 1.5;
+      padding: 12px;
+      border: 1px solid #bbb;
+      border-radius: 6px;
+      background: #1e1e1e;
+      color: #e6e6e6;
+      resize: vertical;
+      white-space: pre;
+    }
+    .hint { font-size: 12.5px; color: #666; margin-top: 6px; }
+    code { background: #e8e8e8; padding: 1px 5px; border-radius: 3px; }
+    .copied { color: #2f5e26; font-size: 13px; font-weight: bold; visibility: hidden; }
+    .copied.show { visibility: visible; }
+  </style>
+</head>
+<body>
+  <h1>Éditeur des articles</h1>
+  <p class="intro">
+    Modifiez les articles ci-dessous, puis cliquez sur <strong>Générer le code</strong>.
+    Copiez le résultat et collez-le dans <code>index.html</code>, à l'emplacement de la
+    variable <code>ARTICLES</code> (section « PRIX DE VENTE »). La page attend
+    <strong>16 emplacements</strong> pour correspondre à la maquette.
+  </p>
+
+  <div class="toolbar">
+    <button class="primary" id="generer">Générer le code</button>
+    <button id="ajouter">+ Ajouter un article</button>
+    <button class="danger" id="reset">Réinitialiser</button>
+    <span class="count-badge" id="compteur"></span>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Aperçu</th>
+          <th>Colonne</th>
+          <th>Libellé</th>
+          <th>Prix (€)</th>
+          <th>Limite</th>
+          <th>Fond</th>
+          <th>Texte</th>
+          <th>Forme</th>
+          <th>Réservé</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="corps"></tbody>
+    </table>
+  </div>
+
+  <div class="output-section">
+    <div class="output-head">
+      <h2>Code généré</h2>
+      <button id="copier">Copier</button>
+      <span class="copied" id="copie-ok">✓ Copié</span>
+    </div>
+    <textarea id="sortie" readonly spellcheck="false" placeholder="Cliquez sur « Générer le code »…"></textarea>
+    <p class="hint">Ce bloc remplace tout le contenu entre <code>const ARTICLES = [</code> et <code>];</code> dans <code>index.html</code>.</p>
+  </div>
+
+  <script>
+  /* =======================================================================
+     ÉTAT INITIAL — reprend les 16 articles actuels de index.html.
+     ======================================================================= */
+  const ARTICLES_DEFAUT = [
+    { colonne: 1, libelle: "BIÈRE",            prix: 3.00, limite: 30, couleurFond: "#f5e000", couleurTexte: "#000000", forme: "cercle" },
+    { colonne: 1, libelle: "CIDRE",            prix: 3.50, limite: 30, couleurFond: "#f0a35a", couleurTexte: "#000000", forme: "cercle" },
+    { colonne: 1, libelle: "JUS de POMME",     prix: 2.50, limite: 30, couleurFond: "#f08a24", couleurTexte: "#000000", forme: "cercle" },
+    { colonne: 1, libelle: "SOFT",             prix: 2.00, limite: 30, couleurFond: "#ffffff", couleurTexte: "#000000", forme: "cercle" },
+    { colonne: 1, libelle: "CAFÉ",             prix: 1.00, limite: 30, couleurFond: "#000000", couleurTexte: "#ffffff", forme: "cercle" },
+    { colonne: 1, libelle: "GOBELET",          prix: 1.00, limite: 50, couleurFond: "#e3e3f5", couleurTexte: "#5a2fa0", forme: "cercle" },
+    { colonne: 2, libelle: "EAU",              prix: 1.00, limite: 30, couleurFond: "#2e6db4", couleurTexte: "#ffffff", forme: "cercle" },
+    { colonne: 2, libelle: "Bouteille ROUGE",  prix: 9.00, limite: 20, couleurFond: "#c00000", couleurTexte: "#ffffff", forme: "cercle" },
+    { colonne: 2, libelle: "Bouteille ROSÉ",   prix: 9.00, limite: 20, couleurFond: "#e0218a", couleurTexte: "#ffffff", forme: "cercle" },
+    { colonne: 2, libelle: "VERRE VIN ou KIR", prix: 2.00, limite: 30, couleurFond: "#7cb342", couleurTexte: "#000000", forme: "cercle" },
+    { colonne: 2, libelle: "",                 prix: 0.00, limite: 0,  couleurFond: "#bdbdbd", couleurTexte: "#000000", forme: "cercle", reserve: true },
+    { colonne: 3, libelle: "PLATEAU REPAS",    prix: 20.00, limite: 20, couleurFond: "#000000", couleurTexte: "#ffffff", forme: "rectangle" },
+    { colonne: 3, libelle: "SANDWICH",         prix: 4.00,  limite: 30, couleurFond: "#e00000", couleurTexte: "#ffffff", forme: "rectangle" },
+    { colonne: 3, libelle: "FRITES",           prix: 2.50,  limite: 30, couleurFond: "#f5e000", couleurTexte: "#000000", forme: "rectangle" },
+    { colonne: 3, libelle: "CRÊPE",            prix: 1.50,  limite: 30, couleurFond: "#f08a24", couleurTexte: "#000000", forme: "rectangle" },
+    { colonne: 3, libelle: "",                 prix: 0.00,  limite: 0,  couleurFond: "#bdbdbd", couleurTexte: "#000000", forme: "rectangle", reserve: true },
+  ];
+
+  // Copie de travail modifiable
+  let articles = structuredClone(ARTICLES_DEFAUT);
+
+  const corps = document.getElementById("corps");
+  const sortie = document.getElementById("sortie");
+  const compteur = document.getElementById("compteur");
+
+  // Normalise un code couleur (#abc -> #aabbcc) pour l'input color
+  function normHex(hex) {
+    if (typeof hex !== "string") return "#000000";
+    let h = hex.trim();
+    if (/^#([0-9a-fA-F]{3})$/.test(h)) {
+      h = "#" + h[1] + h[1] + h[2] + h[2] + h[3] + h[3];
+    }
+    return /^#([0-9a-fA-F]{6})$/.test(h) ? h.toLowerCase() : "#000000";
+  }
+
+  function escapeHtml(s) {
+    return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  }
+
+  /* ---------- Rendu du tableau ---------- */
+  function render() {
+    corps.innerHTML = "";
+    articles.forEach((a, i) => {
+      const tr = document.createElement("tr");
+      if (a.reserve) tr.classList.add("reserve");
+
+      const formeClass = a.forme === "cercle" ? "cercle" : "rectangle";
+      const apercu = `<span class="preview-badge ${formeClass}"
+          style="background:${a.couleurFond};color:${a.couleurTexte}">${escapeHtml(a.libelle) || "&nbsp;"}</span>`;
+
+      tr.innerHTML = `
+        <td>${i + 1}</td>
+        <td data-preview>${apercu}</td>
+        <td>
+          <select data-field="colonne">
+            <option value="1"${a.colonne === 1 ? " selected" : ""}>1 — Boissons (g.)</option>
+            <option value="2"${a.colonne === 2 ? " selected" : ""}>2 — Boissons (d.)</option>
+            <option value="3"${a.colonne === 3 ? " selected" : ""}>3 — Restauration</option>
+          </select>
+        </td>
+        <td class="libelle"><input type="text" data-field="libelle" value="${escapeHtml(a.libelle)}" placeholder="(réservé)"></td>
+        <td><input type="number" data-field="prix" min="0" step="0.10" value="${a.prix}"></td>
+        <td><input type="number" data-field="limite" min="0" step="1" value="${a.limite}"></td>
+        <td><input type="color" data-field="couleurFond" value="${normHex(a.couleurFond)}"></td>
+        <td><input type="color" data-field="couleurTexte" value="${normHex(a.couleurTexte)}"></td>
+        <td>
+          <select data-field="forme">
+            <option value="cercle"${a.forme === "cercle" ? " selected" : ""}>cercle</option>
+            <option value="rectangle"${a.forme === "rectangle" ? " selected" : ""}>rectangle</option>
+          </select>
+        </td>
+        <td style="text-align:center"><input type="checkbox" data-field="reserve"${a.reserve ? " checked" : ""}></td>
+        <td class="actions-cell">
+          <button class="small" data-action="up" title="Monter">↑</button>
+          <button class="small" data-action="down" title="Descendre">↓</button>
+          <button class="small" data-action="dup" title="Dupliquer">⧉</button>
+          <button class="small danger" data-action="del" title="Supprimer">✕</button>
+        </td>`;
+
+      tr.dataset.index = i;
+      corps.appendChild(tr);
+    });
+    majCompteur();
+  }
+
+  function majCompteur() {
+    const n = articles.length;
+    compteur.textContent = n + " article" + (n > 1 ? "s" : "") + (n === 16 ? " (✓ conforme à la maquette)" : " (attendu : 16)");
+    compteur.className = "count-badge " + (n === 16 ? "ok" : "warn");
+  }
+
+  /* ---------- Mise à jour de l'aperçu d'une ligne ---------- */
+  function majApercu(i) {
+    const tr = corps.querySelector(`tr[data-index="${i}"]`);
+    if (!tr) return;
+    const a = articles[i];
+    const cell = tr.querySelector("[data-preview]");
+    const formeClass = a.forme === "cercle" ? "cercle" : "rectangle";
+    cell.innerHTML = `<span class="preview-badge ${formeClass}"
+        style="background:${a.couleurFond};color:${a.couleurTexte}">${escapeHtml(a.libelle) || "&nbsp;"}</span>`;
+    tr.classList.toggle("reserve", !!a.reserve);
+  }
+
+  /* ---------- Édition des champs (délégation) ---------- */
+  corps.addEventListener("input", (e) => {
+    const field = e.target.dataset.field;
+    if (!field) return;
+    const i = +e.target.closest("tr").dataset.index;
+    const a = articles[i];
+
+    if (field === "colonne") a.colonne = +e.target.value;
+    else if (field === "prix") a.prix = parseFloat(e.target.value) || 0;
+    else if (field === "limite") a.limite = parseInt(e.target.value, 10) || 0;
+    else if (field === "reserve") a.reserve = e.target.checked;
+    else a[field] = e.target.value;
+
+    if (field === "reserve" && !a.reserve) delete a.reserve;
+    majApercu(i);
+  });
+
+  /* ---------- Actions par ligne (délégation) ---------- */
+  corps.addEventListener("click", (e) => {
+    const action = e.target.dataset.action;
+    if (!action) return;
+    const i = +e.target.closest("tr").dataset.index;
+
+    if (action === "del") {
+      articles.splice(i, 1);
+    } else if (action === "dup") {
+      articles.splice(i + 1, 0, structuredClone(articles[i]));
+    } else if (action === "up" && i > 0) {
+      [articles[i - 1], articles[i]] = [articles[i], articles[i - 1]];
+    } else if (action === "down" && i < articles.length - 1) {
+      [articles[i + 1], articles[i]] = [articles[i], articles[i + 1]];
+    }
+    render();
+  });
+
+  /* ---------- Boutons de la barre d'outils ---------- */
+  document.getElementById("ajouter").addEventListener("click", () => {
+    articles.push({
+      colonne: 1, libelle: "NOUVEAU", prix: 0, limite: 0,
+      couleurFond: "#cccccc", couleurTexte: "#000000", forme: "cercle"
+    });
+    render();
+  });
+
+  document.getElementById("reset").addEventListener("click", () => {
+    if (confirm("Réinitialiser avec les 16 articles d'origine ? Vos modifications seront perdues.")) {
+      articles = structuredClone(ARTICLES_DEFAUT);
+      render();
+      sortie.value = "";
+    }
+  });
+
+  /* ---------- Génération du code ARTICLES ---------- */
+  function genererCode() {
+    const lignes = articles.map((a) => {
+      const parts = [
+        `colonne: ${a.colonne}`,
+        `libelle: ${JSON.stringify(a.libelle)}`,
+        `prix: ${Number(a.prix).toFixed(2)}`,
+        `limite: ${a.limite}`,
+        `couleurFond: ${JSON.stringify(a.couleurFond)}`,
+        `couleurTexte: ${JSON.stringify(a.couleurTexte)}`,
+        `forme: ${JSON.stringify(a.forme)}`,
+      ];
+      if (a.reserve) parts.push(`reserve: true`);
+      return "    { " + parts.join(", ") + " },";
+    });
+    return "  const ARTICLES = [\n" + lignes.join("\n") + "\n  ];";
+  }
+
+  document.getElementById("generer").addEventListener("click", () => {
+    sortie.value = genererCode();
+    sortie.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  });
+
+  /* ---------- Copier dans le presse-papier ---------- */
+  document.getElementById("copier").addEventListener("click", async () => {
+    if (!sortie.value) sortie.value = genererCode();
+    try {
+      await navigator.clipboard.writeText(sortie.value);
+    } catch (err) {
+      sortie.select();
+      document.execCommand("copy");
+    }
+    const ok = document.getElementById("copie-ok");
+    ok.classList.add("show");
+    setTimeout(() => ok.classList.remove("show"), 1500);
+  });
+
+  // Rendu initial
+  render();
+  </script>
+</body>
+</html>
