@@ -239,10 +239,9 @@
   /* =======================================================================
      SECTION PRIX DE VENTE
      -----------------------------------------------------------------------
-     Cette section regroupe le prix de vente (en euros) de chacun des 16
+     Cette section regroupe le prix de vente (en euros) de chacun des
      articles de la vente. C'est le seul endroit à modifier pour ajuster
-     les tarifs. Les emplacements "empty: true" sont des cases réservées
-     (non vendables) pour atteindre les 16 emplacements de la maquette.
+     les tarifs. Les articles "inactif: true" ne sont pas affichés.
 
        colonne      : colonne d'affichage (1 & 2 = BOISSONS, 3 = RESTAURATION)
        libelle      : texte affiché sur la pastille
@@ -251,7 +250,7 @@
        couleurFond  : couleur de fond de la pastille
        couleurTexte : couleur du texte de la pastille
        forme        : "cercle" (boisson) ou "rectangle" (restauration)
-       reserve      : true pour un emplacement réservé (non vendable)
+       inactif      : true pour masquer l'article (non affiché, non vendable)
      ======================================================================= */
   const ARTICLES = [
     // --- Colonne 1 (BOISSONS) ---
@@ -267,14 +266,14 @@
     { colonne: 2, libelle: "Bouteille ROUGE",  prix: 9.00, limite: 20, couleurFond: "#c00000", couleurTexte: "#fff", forme: "cercle" },
     { colonne: 2, libelle: "Bouteille ROSÉ",   prix: 9.00, limite: 20, couleurFond: "#e0218a", couleurTexte: "#fff", forme: "cercle" },
     { colonne: 2, libelle: "VERRE VIN ou KIR", prix: 2.00, limite: 30, couleurFond: "#7cb342", couleurTexte: "#000", forme: "cercle" },
-    { colonne: 2, libelle: "",                 prix: 0.00, limite: 0,  couleurFond: "#bdbdbd", couleurTexte: "#000", forme: "cercle", reserve: true },
+    { colonne: 2, libelle: "",                 prix: 0.00, limite: 0,  couleurFond: "#bdbdbd", couleurTexte: "#000", forme: "cercle", inactif: true },
 
     // --- Colonne 3 (RESTAURATION) ---
     { colonne: 3, libelle: "PLATEAU REPAS",    prix: 20.00, limite: 20, couleurFond: "#000000", couleurTexte: "#fff", forme: "rectangle" },
     { colonne: 3, libelle: "SANDWICH",         prix: 4.00,  limite: 30, couleurFond: "#e00000", couleurTexte: "#fff", forme: "rectangle" },
     { colonne: 3, libelle: "FRITES",           prix: 2.50,  limite: 30, couleurFond: "#f5e000", couleurTexte: "#000", forme: "rectangle" },
     { colonne: 3, libelle: "CRÊPE",            prix: 1.50,  limite: 30, couleurFond: "#f08a24", couleurTexte: "#000", forme: "rectangle" },
-    { colonne: 3, libelle: "",                 prix: 0.00,  limite: 0,  couleurFond: "#bdbdbd", couleurTexte: "#000", forme: "rectangle", reserve: true },
+    { colonne: 3, libelle: "",                 prix: 0.00,  limite: 0,  couleurFond: "#bdbdbd", couleurTexte: "#000", forme: "rectangle", inactif: true },
   ];
   /* ===================== FIN SECTION PRIX DE VENTE ===================== */
 
@@ -295,7 +294,7 @@
 
   function buildCell(article, index) {
     const cell = document.createElement("div");
-    cell.className = "cell" + (article.reserve ? " empty" : "");
+    cell.className = "cell";
     cell.style.setProperty("--strip", article.couleurFond);
 
     // Pastille / libellé
@@ -335,22 +334,20 @@
     down.textContent = "−";
     down.setAttribute("aria-label", "Retirer " + article.libelle);
 
-    if (!article.reserve) {
-      up.addEventListener("click", () => {
-        // Respecte la limite de quantité définie dans la SECTION PRIX DE VENTE
-        if (quantities[index] >= article.limite) return;
-        quantities[index]++;
+    up.addEventListener("click", () => {
+      // Respecte la limite de quantité définie dans la SECTION PRIX DE VENTE
+      if (quantities[index] >= article.limite) return;
+      quantities[index]++;
+      qty.textContent = quantities[index];
+      updateTotal();
+    });
+    down.addEventListener("click", () => {
+      if (quantities[index] > 0) {
+        quantities[index]--;
         qty.textContent = quantities[index];
         updateTotal();
-      });
-      down.addEventListener("click", () => {
-        if (quantities[index] > 0) {
-          quantities[index]--;
-          qty.textContent = quantities[index];
-          updateTotal();
-        }
-      });
-    }
+      }
+    });
 
     cell.appendChild(badge);
     cell.appendChild(qty);
@@ -370,16 +367,17 @@
   };
   const cells = [];
   ARTICLES.forEach((article, index) => {
+    if (article.inactif) return; // les articles inactifs ne sont pas affichés
     const cell = buildCell(article, index);
     columns[article.colonne].appendChild(cell);
-    cells.push(cell);
+    cells[index] = cell;
   });
 
   // RAZ : remise à zéro de toutes les quantités et du total
   document.getElementById("raz").addEventListener("click", () => {
     for (let i = 0; i < quantities.length; i++) {
       quantities[i] = 0;
-      cells[i]._qtyEl.textContent = "0";
+      if (cells[i]) cells[i]._qtyEl.textContent = "0";
     }
     updateTotal();
   });
