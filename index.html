@@ -232,6 +232,108 @@
         overflow: visible;   /* le texte peut dépasser du cercle de fond */
       }
     }
+
+    /* ======================= MODALE TICKET DE CAISSE ======================= */
+    #total { cursor: pointer; }
+    #total:hover { filter: brightness(1.2); }
+
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, .55);
+      z-index: 100;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 20px 12px;
+      overflow-y: auto;
+    }
+    .modal-overlay.open { display: flex; }
+
+    .ticket {
+      position: relative;
+      background: #fff;
+      width: 100%;
+      max-width: 400px;
+      border-radius: 10px;
+      padding: 20px 18px 18px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, .35);
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+    }
+    .ticket-close {
+      position: absolute;
+      top: 8px; right: 8px;
+      width: 32px; height: 32px;
+      border: none;
+      background: transparent;
+      font-size: 20px;
+      cursor: pointer;
+      color: #666;
+      border-radius: 4px;
+      touch-action: manipulation;
+    }
+    .ticket-close:hover { background: #eee; }
+
+    .ticket-title {
+      text-align: center;
+      font-size: 18px;
+      margin: 0 0 2px;
+      letter-spacing: 3px;
+    }
+    .ticket-soustitre {
+      text-align: center;
+      color: #888;
+      font-size: 12px;
+      margin: 0 0 14px;
+      padding-bottom: 12px;
+      border-bottom: 2px dashed #bbb;
+    }
+
+    .ticket-lignes { display: flex; flex-direction: column; gap: 10px; }
+    .recu-ligne { display: flex; align-items: center; gap: 10px; }
+    .recu-qte { font-weight: bold; font-size: 15px; min-width: 34px; }
+    .recu-jeton {
+      flex: 0 0 auto;
+      width: 28px;
+      height: 28px;
+      border: 2px solid rgba(0, 0, 0, .5);
+    }
+    .recu-jeton.j-cercle { border-radius: 50%; }
+    .recu-jeton.j-rect { border-radius: 3px; }
+    .recu-nom { flex: 1; line-height: 1.2; font-weight: bold; }
+    .recu-nom small { display: block; color: #999; font-size: 11px; font-weight: normal; }
+    .recu-prix { font-weight: bold; white-space: nowrap; }
+
+    .ticket-vide { text-align: center; color: #999; padding: 24px 0; }
+
+    .ticket-total {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-top: 14px;
+      padding-top: 12px;
+      border-top: 2px dashed #bbb;
+      font-size: 22px;
+      font-weight: bold;
+    }
+    .ticket-total span:last-child { color: var(--green-dark); }
+
+    .btn-suivant {
+      width: 100%;
+      margin-top: 16px;
+      padding: 14px;
+      font-size: 18px;
+      font-weight: bold;
+      color: #fff;
+      background: var(--green-dark);
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      letter-spacing: 1px;
+      touch-action: manipulation;
+    }
+    .btn-suivant:hover { background: #24491d; }
+    .btn-suivant:active { background: #1c3a17; }
   </style>
 </head>
 <body>
@@ -249,6 +351,18 @@
       <div class="column" id="col-1"></div>
       <div class="column" id="col-2"></div>
       <div class="column" id="col-3"></div>
+    </div>
+  </div>
+
+  <!-- Modale « ticket de caisse » (ouverte au clic sur le total) -->
+  <div class="modal-overlay" id="modal">
+    <div class="ticket" role="dialog" aria-modal="true" aria-label="Récapitulatif de la vente">
+      <button class="ticket-close" id="ticket-close" aria-label="Fermer">✕</button>
+      <h2 class="ticket-title">TICKET</h2>
+      <p class="ticket-soustitre">Détail de la vente</p>
+      <div class="ticket-lignes" id="ticket-lignes"></div>
+      <div class="ticket-total"><span>TOTAL</span><span id="ticket-total-val">0,00 €</span></div>
+      <button class="btn-suivant" id="btn-suivant">RAZ — Client suivant</button>
     </div>
   </div>
 
@@ -409,12 +523,101 @@
   });
 
   // RAZ : remise à zéro de toutes les quantités et du total
-  document.getElementById("raz").addEventListener("click", () => {
+  function resetAll() {
     for (let i = 0; i < quantities.length; i++) {
       quantities[i] = 0;
       if (cells[i]) cells[i]._qtyEl.textContent = "0";
     }
     updateTotal();
+  }
+  document.getElementById("raz").addEventListener("click", resetAll);
+
+  /* =======================================================================
+     MODALE TICKET DE CAISSE
+     ======================================================================= */
+  const modal = document.getElementById("modal");
+  const ticketLignes = document.getElementById("ticket-lignes");
+  const ticketTotalVal = document.getElementById("ticket-total-val");
+
+  // Petit jeton (forme + couleur + éventuel motif) pour le ticket
+  function createJeton(article) {
+    const j = document.createElement("span");
+    j.className = "recu-jeton " + (article.forme === "cercle" ? "j-cercle" : "j-rect");
+    j.style.background = article.couleurFond;
+    if (article.motif === "hachures") {
+      j.style.backgroundImage =
+        "repeating-linear-gradient(-45deg, #fff 0, #fff 3px, transparent 3px, transparent 9px)";
+    }
+    return j;
+  }
+
+  // Construit le contenu du ticket à partir des quantités choisies
+  function renderTicket() {
+    ticketLignes.innerHTML = "";
+    let total = 0;
+    let nbLignes = 0;
+
+    ARTICLES.forEach((article, i) => {
+      const q = quantities[i];
+      if (q <= 0) return;
+      nbLignes++;
+      const sousTotal = article.prix * q;
+      total += sousTotal;
+
+      const ligne = document.createElement("div");
+      ligne.className = "recu-ligne";
+
+      const qte = document.createElement("span");
+      qte.className = "recu-qte";
+      qte.textContent = q + "×";
+
+      const nom = document.createElement("span");
+      nom.className = "recu-nom";
+      nom.appendChild(document.createTextNode(article.libelle || "—"));
+      const pu = document.createElement("small");
+      pu.textContent = formatEuros(article.prix) + " / u";
+      nom.appendChild(pu);
+
+      const prix = document.createElement("span");
+      prix.className = "recu-prix";
+      prix.textContent = formatEuros(sousTotal);
+
+      ligne.append(qte, createJeton(article), nom, prix);
+      ticketLignes.appendChild(ligne);
+    });
+
+    if (nbLignes === 0) {
+      const vide = document.createElement("p");
+      vide.className = "ticket-vide";
+      vide.textContent = "Aucun article sélectionné.";
+      ticketLignes.appendChild(vide);
+    }
+    ticketTotalVal.textContent = formatEuros(total);
+  }
+
+  function openTicket() { renderTicket(); modal.classList.add("open"); }
+  function closeTicket() { modal.classList.remove("open"); }
+
+  // Ouverture au clic (et au clavier) sur le montant total
+  totalEl.setAttribute("role", "button");
+  totalEl.setAttribute("tabindex", "0");
+  totalEl.setAttribute("title", "Voir le détail de la vente");
+  totalEl.addEventListener("click", openTicket);
+  totalEl.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openTicket(); }
+  });
+
+  // Fermeture : bouton ✕, clic sur le fond, touche Échap
+  document.getElementById("ticket-close").addEventListener("click", closeTicket);
+  modal.addEventListener("click", (e) => { if (e.target === modal) closeTicket(); });
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && modal.classList.contains("open")) closeTicket();
+  });
+
+  // Bouton RAZ du ticket -> remet à zéro et ferme (client suivant)
+  document.getElementById("btn-suivant").addEventListener("click", () => {
+    resetAll();
+    closeTicket();
   });
 
   updateTotal();
