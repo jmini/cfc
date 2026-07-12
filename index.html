@@ -757,6 +757,15 @@
   });
 
   updateTotal();
+
+  /* =======================================================================
+     SERVICE WORKER — mises à jour automatiques (au prochain lancement) + hors-ligne
+     ======================================================================= */
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker.register("sw.js").catch(() => {});
+    });
+  }
   </script>
 </body>
 </html>
