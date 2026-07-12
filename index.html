@@ -256,12 +256,13 @@
        couleurFond  : couleur de fond de la pastille
        couleurTexte : couleur du texte de la pastille
        forme        : "cercle" (boisson) ou "rectangle" (restauration)
+       motif        : (optionnel) "hachures" -> hachures blanches à 45° sur le fond
        inactif      : true pour masquer l'article (non affiché, non vendable)
      ======================================================================= */
   const ARTICLES = [
     // --- Colonne 1 (BOISSONS) ---
     { colonne: 1, libelle: "BIÈRE",            prix: 3.00, limite: 30, couleurFond: "#f5e000", couleurTexte: "#000", forme: "cercle" },
-    { colonne: 1, libelle: "CIDRE",            prix: 3.50, limite: 30, couleurFond: "#f0a35a", couleurTexte: "#000", forme: "cercle" },
+    { colonne: 1, libelle: "CIDRE",            prix: 3.50, limite: 30, couleurFond: "#f08a24", couleurTexte: "#000", forme: "cercle", motif: "hachures" },
     { colonne: 1, libelle: "JUS de POMME",     prix: 2.50, limite: 30, couleurFond: "#f08a24", couleurTexte: "#000", forme: "cercle" },
     { colonne: 1, libelle: "SOFT",             prix: 2.00, limite: 30, couleurFond: "#ffffff", couleurTexte: "#000", forme: "cercle" },
     { colonne: 1, libelle: "CAFÉ",             prix: 1.00, limite: 30, couleurFond: "#000000", couleurTexte: "#fff", forme: "cercle" },
@@ -310,6 +311,11 @@
     inner.textContent = article.libelle;
     inner.style.background = article.couleurFond;
     inner.style.color = article.couleurTexte;
+    // Motif optionnel : hachures blanches à 45° par-dessus le fond
+    if (article.motif === "hachures") {
+      inner.style.backgroundImage =
+        "repeating-linear-gradient(45deg, #fff 0, #fff 3px, transparent 3px, transparent 9px)";
+    }
     // Contour sombre sur les textes blancs pour garantir la lisibilité
     if (article.couleurTexte.toLowerCase() === "#fff" || article.couleurTexte.toLowerCase() === "#ffffff") {
       inner.style.textShadow = "0 0 2px #000, 0 1px 1px rgba(0,0,0,.8)";
