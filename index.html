@@ -347,6 +347,53 @@
     }
     .btn-suivant:hover { background: #24491d; }
     .btn-suivant:active { background: #1c3a17; }
+
+    /* ---------- Lien d'installation + feuille QR (ancrée en bas) ---------- */
+    .app-footer { text-align: center; margin: 18px 0 6px; }
+    .app-footer a {
+      color: var(--green-dark);
+      font-size: 14px;
+      font-weight: bold;
+      text-decoration: none;
+      border-bottom: 1px dotted var(--green-dark);
+      cursor: pointer;
+    }
+    .app-footer a:hover { filter: brightness(1.3); }
+
+    .modal-overlay.sheet { align-items: flex-end; padding: 0; }
+    @keyframes sheetUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+    .modal-overlay.sheet.open .qr-sheet { animation: sheetUp .25s ease; }
+
+    .qr-sheet {
+      position: relative;
+      background: #fff;
+      width: 100%;
+      max-width: 480px;
+      border-radius: 16px 16px 0 0;
+      padding: 22px 20px 28px;
+      box-shadow: 0 -6px 30px rgba(0, 0, 0, .3);
+      text-align: center;
+    }
+    .qr-title { font-size: 18px; margin: 0 0 14px; }
+    .qr-code {
+      width: 220px;
+      max-width: 70vw;
+      margin: 0 auto 12px;
+      padding: 10px;
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+    }
+    .qr-code svg { display: block; width: 100%; height: auto; }
+    .qr-url {
+      font-family: "SFMono-Regular", Consolas, monospace;
+      font-size: 14px;
+      font-weight: bold;
+      color: var(--green-dark);
+      margin: 0 0 4px;
+      word-break: break-all;
+    }
+    .qr-help { font-size: 13px; color: #666; margin: 0; }
   </style>
 </head>
 <body>
@@ -365,6 +412,10 @@
       <div class="column" id="col-2"></div>
       <div class="column" id="col-3"></div>
     </div>
+
+    <p class="app-footer">
+      <a href="#" id="lien-qr">📱 Installer l'application sur mobile (QR code)</a>
+    </p>
   </div>
 
   <!-- Modale « ticket de caisse » (ouverte au clic sur le total) -->
@@ -376,6 +427,19 @@
       <div class="ticket-lignes" id="ticket-lignes"></div>
       <div class="ticket-total"><span>TOTAL</span><span id="ticket-total-val">0,00 €</span></div>
       <button class="btn-suivant" id="btn-suivant">RAZ — Client suivant</button>
+    </div>
+  </div>
+
+  <!-- Feuille QR code d'installation (ouverte depuis le lien en bas) -->
+  <div class="modal-overlay sheet" id="qr-modal">
+    <div class="qr-sheet" role="dialog" aria-modal="true" aria-label="QR code d'installation">
+      <button class="ticket-close" id="qr-close" aria-label="Fermer">✕</button>
+      <h2 class="qr-title">Installer l'application</h2>
+      <div class="qr-code">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 33 33" shape-rendering="crispEdges"><path fill="#ffffff" d="M0 0h33v33H0z"/><path stroke="#000000" d="M2 2.5h7m1 0h5m4 0h2m3 0h7M2 3.5h1m5 0h1m2 0h3m4 0h2m1 0h1m2 0h1m5 0h1M2 4.5h1m1 0h3m1 0h1m2 0h1m1 0h3m1 0h4m3 0h1m1 0h3m1 0h1M2 5.5h1m1 0h3m1 0h1m1 0h5m1 0h3m2 0h1m2 0h1m1 0h3m1 0h1M2 6.5h1m1 0h3m1 0h1m1 0h1m2 0h4m1 0h3m3 0h1m1 0h3m1 0h1M2 7.5h1m5 0h1m1 0h1m1 0h1m1 0h4m1 0h1m1 0h2m1 0h1m5 0h1M2 8.5h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7M10 9.5h1m1 0h1m1 0h1m1 0h1m2 0h4M2 10.5h1m3 0h1m1 0h4m2 0h6m2 0h6m2 0h1M2 11.5h1m1 0h1m1 0h1m2 0h1m4 0h1m5 0h1m1 0h1m1 0h7M2 12.5h1m2 0h1m2 0h2m2 0h2m1 0h3m5 0h1m1 0h2m3 0h1M2 13.5h1m1 0h2m3 0h1m2 0h1m1 0h2m1 0h5m2 0h1m1 0h2m1 0h2M3 14.5h8m4 0h1m3 0h1m1 0h2m6 0h1M4 15.5h2m1 0h1m1 0h1m1 0h1m1 0h1m1 0h2m1 0h1m1 0h1m3 0h7M2 16.5h1m1 0h6m1 0h1m1 0h2m3 0h1m1 0h1m1 0h1m4 0h2m1 0h1M2 17.5h6m3 0h3m2 0h1m2 0h1m2 0h2m1 0h2m2 0h2M4 18.5h1m2 0h2m1 0h1m1 0h1m2 0h5m1 0h1m1 0h1m5 0h1M2 19.5h2m7 0h3m6 0h1m3 0h4m1 0h2M4 20.5h1m2 0h4m1 0h6m6 0h1m3 0h1m1 0h1M5 21.5h1m1 0h1m1 0h1m1 0h2m2 0h1m1 0h4m5 0h1m2 0h2M2 22.5h2m1 0h2m1 0h1m3 0h1m1 0h2m3 0h2m1 0h6m2 0h1M10 23.5h1m1 0h1m1 0h3m1 0h5m3 0h1m3 0h1M2 24.5h7m1 0h1m2 0h2m3 0h1m1 0h3m1 0h1m1 0h3m1 0h1M2 25.5h1m5 0h1m3 0h3m1 0h1m2 0h4m3 0h1m2 0h2M2 26.5h1m1 0h3m1 0h1m1 0h1m3 0h5m1 0h8m1 0h2M2 27.5h1m1 0h3m1 0h1m4 0h1m5 0h5m5 0h1M2 28.5h1m1 0h3m1 0h1m3 0h1m3 0h2m2 0h2m1 0h1m3 0h4M2 29.5h1m5 0h1m2 0h2m2 0h4m2 0h3m1 0h3m1 0h2M2 30.5h7m1 0h1m1 0h1m2 0h1m6 0h2m3 0h1m1 0h1"/></svg>
+      </div>
+      <p class="qr-url">jmini.github.io/cfc</p>
+      <p class="qr-help">Scannez ce code, puis « Ajouter à l'écran d'accueil ».</p>
     </div>
   </div>
 
@@ -656,7 +720,11 @@
   document.getElementById("ticket-close").addEventListener("click", closeTicket);
   modal.addEventListener("click", (e) => { if (e.target === modal) closeTicket(); });
   document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape" && modal.classList.contains("open")) closeTicket();
+    if (e.key !== "Escape") return;
+    if (modal.classList.contains("open")) closeTicket();
+    if (document.getElementById("qr-modal").classList.contains("open")) {
+      document.getElementById("qr-modal").classList.remove("open");
+    }
   });
 
   // Bouton RAZ du ticket -> remet à zéro et ferme (client suivant)
@@ -664,6 +732,16 @@
     resetAll();
     closeTicket();
   });
+
+  /* =======================================================================
+     FEUILLE QR CODE (lien "Installer l'application" en bas de l'écran)
+     ======================================================================= */
+  const qrModal = document.getElementById("qr-modal");
+  function openQR() { qrModal.classList.add("open"); }
+  function closeQR() { qrModal.classList.remove("open"); }
+  document.getElementById("lien-qr").addEventListener("click", (e) => { e.preventDefault(); openQR(); });
+  document.getElementById("qr-close").addEventListener("click", closeQR);
+  qrModal.addEventListener("click", (e) => { if (e.target === qrModal) closeQR(); });
 
   /* =======================================================================
      PIÈGE DE NAVIGATION "RETOUR" (aspect application)
@@ -674,6 +752,7 @@
   history.pushState(null, "", location.href);
   window.addEventListener("popstate", () => {
     if (modal.classList.contains("open")) closeTicket();
+    if (qrModal.classList.contains("open")) closeQR();
     history.pushState(null, "", location.href);
   });
 
