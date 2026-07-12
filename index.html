@@ -3,6 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Rendu "application" : lancement plein écran depuis l'écran d'accueil -->
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Calculette">
+  <meta name="theme-color" content="#2f5e26">
   <title>Calculette de vente</title>
   <style>
     :root {
@@ -653,6 +659,18 @@
   document.getElementById("btn-suivant").addEventListener("click", () => {
     resetAll();
     closeTicket();
+  });
+
+  /* =======================================================================
+     PIÈGE DE NAVIGATION "RETOUR" (aspect application)
+     -----------------------------------------------------------------------
+     Le geste / bouton "Précédent" ne quitte plus la page : s'il y a une
+     modale ouverte, il la ferme ; sinon l'état est simplement ré-empilé.
+     ======================================================================= */
+  history.pushState(null, "", location.href);
+  window.addEventListener("popstate", () => {
+    if (modal.classList.contains("open")) closeTicket();
+    history.pushState(null, "", location.href);
   });
 
   updateTotal();
