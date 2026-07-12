@@ -43,6 +43,12 @@
       box-shadow: 0 2px 6px rgba(0, 0, 0, .15);
     }
 
+    /* touch-action: manipulation -> empêche le zoom au double-tap sur mobile */
+    .btn-raz,
+    .cell button {
+      touch-action: manipulation;
+    }
+
     .btn-raz {
       font-size: 22px;
       font-weight: bold;
