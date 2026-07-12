@@ -327,9 +327,11 @@
       inner.style.backgroundImage =
         "repeating-linear-gradient(-45deg, #fff 0, #fff 3px, transparent 3px, transparent 9px)";
     }
-    // Contour sombre sur les textes blancs pour garantir la lisibilité
+    // Contour noir net sur les textes blancs pour garantir la lisibilité,
+    // y compris quand le texte déborde sur le fond blanc de la cellule.
     if (article.couleurTexte.toLowerCase() === "#fff" || article.couleurTexte.toLowerCase() === "#ffffff") {
-      inner.style.textShadow = "0 0 2px #000, 0 1px 1px rgba(0,0,0,.8)";
+      inner.style.textShadow =
+        "-1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000, 0 0 3px #000";
     }
     if (article.forme === "rectangle") {
       inner.style.display = "block";
