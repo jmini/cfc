@@ -314,7 +314,7 @@
     // Motif optionnel : hachures blanches à 45° par-dessus le fond
     if (article.motif === "hachures") {
       inner.style.backgroundImage =
-        "repeating-linear-gradient(45deg, #fff 0, #fff 3px, transparent 3px, transparent 9px)";
+        "repeating-linear-gradient(-45deg, #fff 0, #fff 3px, transparent 3px, transparent 9px)";
     }
     // Contour sombre sur les textes blancs pour garantir la lisibilité
     if (article.couleurTexte.toLowerCase() === "#fff" || article.couleurTexte.toLowerCase() === "#ffffff") {
