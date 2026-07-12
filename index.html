@@ -97,17 +97,22 @@
       gap: var(--gap);
     }
 
-    /* ---------- Cellule article ---------- */
+    /* ---------- Cellule article ----------
+       Placement explicite par grille : badge (col 1), quantité (col 2),
+       bouton + (col 3, ligne 1) et bouton − (col 3, ligne 2). Ce placement
+       est redéfini en flexbox sur mobile (voir media query en bas). */
     .cell {
       display: grid;
       grid-template-columns: 1fr 34px 26px;
-      align-items: stretch;
+      grid-template-rows: 1fr 1fr;
       border: 2px solid var(--border);
       min-height: 48px;
       background: #fff;
     }
 
     .badge {
+      grid-column: 1;
+      grid-row: 1 / 3;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -131,6 +136,8 @@
     }
 
     .qty {
+      grid-column: 2;
+      grid-row: 1 / 3;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -139,12 +146,7 @@
       border-right: 4px solid var(--strip, #ccc);
     }
 
-    .spin {
-      display: flex;
-      flex-direction: column;
-    }
-    .spin button {
-      flex: 1;
+    .cell button {
       border: none;
       border-left: 1px solid var(--border);
       background: #f2f2f2;
@@ -153,17 +155,59 @@
       line-height: 1;
       padding: 0;
     }
-    .spin button:first-child { border-bottom: 1px solid var(--border); }
-    .spin button:hover { background: #ddd; }
-    .spin button:active { background: #ccc; }
+    .btn-plus  { grid-column: 3; grid-row: 1; border-bottom: 1px solid var(--border); }
+    .btn-moins { grid-column: 3; grid-row: 2; }
+    .cell button:hover { background: #ddd; }
+    .cell button:active { background: #ccc; }
 
     /* emplacement vide (réservé) */
     .cell.empty .badge span {
       background: #bdbdbd !important;
       border-color: #999;
     }
-    .cell.empty .spin button { visibility: hidden; }
+    .cell.empty button { visibility: hidden; }
     .cell.empty .qty { color: #999; }
+
+    /* ======================= MOBILE : une colonne ======================= */
+    @media (max-width: 640px) {
+      body { padding: 8px; }
+
+      .topbar { grid-template-columns: auto 1fr auto; }
+      .total-value { min-width: 0; font-size: 24px; }
+      .total-label { font-size: 18px; padding: 0 8px; }
+      .btn-raz { font-size: 18px; padding: 6px 14px; }
+
+      /* Board sur une seule colonne, headers regroupés avec leurs articles */
+      .board { display: flex; flex-direction: column; gap: 6px; }
+      .header-boissons     { order: 1; }
+      #col-1               { order: 2; }
+      #col-2               { order: 3; }
+      .header-restauration { order: 4; }
+      #col-3               { order: 5; }
+
+      /* Chaque article en pleine largeur : − à gauche, + à droite */
+      .cell {
+        display: flex;
+        align-items: stretch;
+        min-height: 60px;
+      }
+      .cell .btn-moins { order: 1; }
+      .cell .badge     { order: 2; flex: 1; border-left: 2px solid var(--border); }
+      .cell .qty       { order: 3; min-width: 56px; border-right: none; border-left: 4px solid var(--strip, #ccc); }
+      .cell .btn-plus  { order: 4; }
+
+      .cell button {
+        width: 64px;
+        min-width: 64px;
+        font-size: 26px;
+        font-weight: bold;
+        border: none;
+        border-bottom: none;
+      }
+      .cell .btn-plus  { border-left: 1px solid var(--border); }
+      .cell .btn-moins { border-right: 1px solid var(--border); }
+      .badge.circle span { width: 46px; height: 46px; }
+    }
   </style>
 </head>
 <body>
@@ -271,16 +315,17 @@
     qty.className = "qty";
     qty.textContent = "0";
 
-    // Boutons + / -
-    const spin = document.createElement("div");
-    spin.className = "spin";
+    // Boutons + / − (enfants directs de la cellule ; placés par la grille
+    // sur desktop, et à gauche/droite via flexbox sur mobile)
     const up = document.createElement("button");
     up.type = "button";
-    up.textContent = "▲";
+    up.className = "btn-plus";
+    up.textContent = "+";
     up.setAttribute("aria-label", "Ajouter " + article.libelle);
     const down = document.createElement("button");
     down.type = "button";
-    down.textContent = "▼";
+    down.className = "btn-moins";
+    down.textContent = "−";
     down.setAttribute("aria-label", "Retirer " + article.libelle);
 
     if (!article.reserve) {
@@ -300,12 +345,10 @@
       });
     }
 
-    spin.appendChild(up);
-    spin.appendChild(down);
-
     cell.appendChild(badge);
     cell.appendChild(qty);
-    cell.appendChild(spin);
+    cell.appendChild(up);
+    cell.appendChild(down);
 
     // Mémoriser l'élément quantité pour le RAZ
     cell._qtyEl = qty;
