@@ -8,7 +8,7 @@
    >>> À CHAQUE DÉPLOIEMENT contenant des changements, incrémentez VERSION
    (v1 -> v2 -> ...) pour purger proprement l'ancien cache. <<<
    ========================================================================= */
-const VERSION = "v2";
+const VERSION = "v3";
 const CACHE = "cfc-" + VERSION;
 
 // Ressources de base à mettre en cache pour le fonctionnement hors-ligne
