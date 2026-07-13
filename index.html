@@ -24,6 +24,12 @@
 
     * { box-sizing: border-box; }
 
+    /* Autorise le défilement vertical mais désactive le zoom par pincement
+       (Android/Chrome ignore user-scalable=no ; touch-action, lui, est respecté) */
+    html {
+      touch-action: pan-y;
+    }
+
     body {
       margin: 0;
       padding: 12px;
