@@ -485,30 +485,59 @@
     return (0.299 * r + 0.587 * g + 0.114 * b) > 150;
   }
 
-  // Ajoute une action répétée en pression longue (souris + tactile) :
-  // 1 action au premier appui, puis répétition tant que le bouton reste enfoncé.
+  // Ajoute une action au bouton, tolérante au scroll tactile :
+  //  - rien ne se déclenche au simple contact du doigt ;
+  //  - un TAP (contact bref, sans déplacement) => 1 action au relâchement ;
+  //  - un APPUI MAINTENU immobile => répétition automatique ;
+  //  - dès que le doigt se déplace (scroll) => tout est annulé, aucune action.
   function attachRepeat(btn, action) {
-    const DELAI_INITIAL = 400; // ms avant le début de la répétition
-    const INTERVALLE = 90;     // ms entre deux répétitions
-    let timeout = null;
-    let interval = null;
+    const DELAI_INITIAL = 400;   // ms avant le début de la répétition
+    const INTERVALLE = 90;       // ms entre deux répétitions
+    const SEUIL_MOUVEMENT = 10;  // px de déplacement -> considéré comme un scroll
+    let timeout = null, interval = null;
+    let startX = 0, startY = 0;
+    let actif = false, deplace = false, repete = false;
 
-    const stop = () => {
+    const stopTimers = () => {
       clearTimeout(timeout);
       clearInterval(interval);
       timeout = interval = null;
     };
-    const start = (e) => {
-      if (e.pointerType === "mouse" && e.button !== 0) return; // clic gauche only
-      e.preventDefault();
-      action();
-      timeout = setTimeout(() => { interval = setInterval(action, INTERVALLE); }, DELAI_INITIAL);
-    };
+    const annuler = () => { stopTimers(); actif = false; };
 
-    btn.addEventListener("pointerdown", start);
-    btn.addEventListener("pointerup", stop);
-    btn.addEventListener("pointerleave", stop);
-    btn.addEventListener("pointercancel", stop);
+    btn.addEventListener("pointerdown", (e) => {
+      if (e.pointerType === "mouse" && e.button !== 0) return; // clic gauche uniquement
+      actif = true; deplace = false; repete = false;
+      startX = e.clientX; startY = e.clientY;
+      // La répétition ne démarre que si le doigt reste immobile
+      timeout = setTimeout(() => {
+        repete = true;
+        action();                                   // 1re action de la répétition
+        interval = setInterval(action, INTERVALLE);
+      }, DELAI_INITIAL);
+    });
+
+    btn.addEventListener("pointermove", (e) => {
+      if (!actif) return;
+      if (Math.abs(e.clientX - startX) > SEUIL_MOUVEMENT ||
+          Math.abs(e.clientY - startY) > SEUIL_MOUVEMENT) {
+        deplace = true;   // c'est un scroll
+        annuler();
+      }
+    });
+
+    btn.addEventListener("pointerup", () => {
+      if (!actif) return;
+      stopTimers();
+      // Tap simple : pas de déplacement et la répétition n'a pas démarré
+      if (!deplace && !repete) action();
+      actif = false;
+    });
+
+    // Le navigateur reprend la main pour scroller, ou le doigt sort : on annule
+    btn.addEventListener("pointercancel", annuler);
+    btn.addEventListener("pointerleave", annuler);
+
     // Accessibilité clavier (Entrée / Espace, avec répétition native au maintien)
     btn.addEventListener("keydown", (e) => {
       if (e.key === "Enter" || e.key === " ") { e.preventDefault(); action(); }
