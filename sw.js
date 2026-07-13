@@ -8,13 +8,14 @@
    >>> À CHAQUE DÉPLOIEMENT contenant des changements, incrémentez VERSION
    (v1 -> v2 -> ...) pour purger proprement l'ancien cache. <<<
    ========================================================================= */
-const VERSION = "v1";
+const VERSION = "v2";
 const CACHE = "cfc-" + VERSION;
 
 // Ressources de base à mettre en cache pour le fonctionnement hors-ligne
 const CORE = [
   "./",
   "./index.html",
+  "./config.json",
   "./manifest.json",
   "./apple-touch-icon.png",
   "./icon-192.png",

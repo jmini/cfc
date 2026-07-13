@@ -453,53 +453,15 @@
 
   <script>
   /* =======================================================================
-     SECTION PRIX DE VENTE
+     CONFIGURATION
      -----------------------------------------------------------------------
-     Cette section regroupe le prix de vente (en euros) de chacun des
-     articles de la vente. C'est le seul endroit à modifier pour ajuster
-     les tarifs. Les articles "inactif: true" ne sont pas affichés.
-
-       colonne      : colonne d'affichage (1 & 2 = BOISSONS, 3 = RESTAURATION)
-       libelle      : texte affiché sur la pastille
-       prix         : prix de vente unitaire en euros
-       limite       : quantité maximale vendable pour cet article (stock max)
-       couleurFond  : couleur de fond de la pastille
-       couleurTexte : couleur du texte de la pastille
-       forme        : "cercle" (boisson) ou "rectangle" (restauration)
-       motif        : (optionnel) "hachures" -> hachures blanches à 45° sur le fond
-       inactif      : true pour masquer l'article (non affiché, non vendable)
+     Les prix, les articles et le titre de version sont définis dans le
+     fichier "config.json" placé à côté de index.html. Il est chargé au
+     démarrage par la fonction demarrer() (tout en bas de ce script).
      ======================================================================= */
-
-  // Titre de la version, affiché dans le pied de page
-  const VERSION = "2026 Fête de la musique";
-
-  const ARTICLES = [
-    // --- Colonne 1 (BOISSONS) ---
-    { colonne: 1, libelle: "BIÈRE",            prix: 3.00, limite: 30, couleurFond: "#f5e000", couleurTexte: "#000", forme: "cercle" },
-    { colonne: 1, libelle: "CIDRE",            prix: 3.50, limite: 30, couleurFond: "#f08a24", couleurTexte: "#000", forme: "cercle", motif: "hachures" },
-    { colonne: 1, libelle: "JUS de POMME",     prix: 2.50, limite: 30, couleurFond: "#f08a24", couleurTexte: "#000", forme: "cercle" },
-    { colonne: 1, libelle: "SOFT",             prix: 2.00, limite: 30, couleurFond: "#ffffff", couleurTexte: "#000", forme: "cercle" },
-    { colonne: 1, libelle: "CAFÉ",             prix: 1.00, limite: 30, couleurFond: "#000000", couleurTexte: "#FFF", forme: "cercle" },
-    
-    // --- Colonne 2 (BOISSONS) ---
-    { colonne: 2, libelle: "EAU",              prix: 1.00, limite: 30, couleurFond: "#2e6db4", couleurTexte: "#cccccc", forme: "cercle" },
-    { colonne: 2, libelle: "Bouteille ROUGE",  prix: 9.00, limite: 20, couleurFond: "#c00000", couleurTexte: "#cccccc", forme: "cercle" },
-    { colonne: 2, libelle: "Bouteille ROSÉ",   prix: 9.00, limite: 20, couleurFond: "#e0218a", couleurTexte: "#cccccc", forme: "cercle" },
-    { colonne: 2, libelle: "VERRE VIN ou KIR", prix: 2.00, limite: 30, couleurFond: "#7cb342", couleurTexte: "#000", forme: "cercle" },
-    { colonne: 2, libelle: "",                 prix: 0.00, limite: 0,  couleurFond: "#bdbdbd", couleurTexte: "#000", forme: "cercle", inactif: true },
-    { colonne: 2, libelle: "GOBELET",          prix: 1.00, limite: 50, couleurFond: "#e3e3f5", couleurTexte: "#5a2fa0", forme: "cercle" },
-
-    // --- Colonne 3 (RESTAURATION) ---
-    { colonne: 3, libelle: "PLATEAU REPAS",    prix: 20.00, limite: 20, couleurFond: "#000000", couleurTexte: "#FFF", forme: "rectangle" },
-    { colonne: 3, libelle: "SANDWICH",         prix: 4.00,  limite: 30, couleurFond: "#e00000", couleurTexte: "#FFF", forme: "rectangle" },
-    { colonne: 3, libelle: "FRITES",           prix: 2.50,  limite: 30, couleurFond: "#f5e000", couleurTexte: "#000", forme: "rectangle" },
-    { colonne: 3, libelle: "CRÊPE",            prix: 1.50,  limite: 30, couleurFond: "#f08a24", couleurTexte: "#000", forme: "rectangle" },
-    { colonne: 3, libelle: "",                 prix: 0.00,  limite: 0,  couleurFond: "#bdbdbd", couleurTexte: "#000", forme: "rectangle", inactif: true },
-  ];
-  /* ===================== FIN SECTION PRIX DE VENTE ===================== */
-
-  // Quantité vendue pour chaque article (même index que ARTICLES)
-  const quantities = ARTICLES.map(() => 0);
+  let ARTICLES = [];   // rempli depuis config.json
+  let VERSION = "";    // titre de version, rempli depuis config.json
+  let quantities = []; // quantité vendue par article (même index qu'ARTICLES)
 
   const totalEl = document.getElementById("total");
 
@@ -634,12 +596,15 @@
     3: document.getElementById("col-3"),
   };
   const cells = [];
-  ARTICLES.forEach((article, index) => {
-    if (article.inactif) return; // les articles inactifs ne sont pas affichés
-    const cell = buildCell(article, index);
-    columns[article.colonne].appendChild(cell);
-    cells[index] = cell;
-  });
+  function construireArticles() {
+    quantities = ARTICLES.map(() => 0);
+    ARTICLES.forEach((article, index) => {
+      if (article.inactif) return; // les articles inactifs ne sont pas affichés
+      const cell = buildCell(article, index);
+      columns[article.colonne].appendChild(cell);
+      cells[index] = cell;
+    });
+  }
 
   // RAZ : remise à zéro de toutes les quantités et du total
   function resetAll() {
@@ -768,10 +733,28 @@
     history.pushState(null, "", location.href);
   });
 
-  updateTotal();
+  /* =======================================================================
+     DÉMARRAGE : chargement de config.json puis construction de l'écran
+     ======================================================================= */
+  function demarrer(config) {
+    ARTICLES = Array.isArray(config.articles) ? config.articles : [];
+    VERSION = config.version || "";
+    construireArticles();
+    updateTotal();
+    document.getElementById("app-version").textContent = VERSION;
+  }
 
-  // Affiche le titre de version dans le pied de page
-  document.getElementById("app-version").textContent = VERSION;
+  fetch("config.json", { cache: "no-cache" })
+    .then((r) => { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
+    .then(demarrer)
+    .catch((err) => {
+      totalEl.textContent = "Erreur";
+      const msg = document.createElement("p");
+      msg.style.cssText = "color:#c00;font-weight:bold;text-align:center;padding:12px";
+      msg.textContent = "Impossible de charger config.json : " + err.message
+        + " — la page doit être servie via http(s) (pas ouverte en file://).";
+      document.querySelector(".board").appendChild(msg);
+    });
 
   /* =======================================================================
      SERVICE WORKER — mises à jour automatiques (au prochain lancement) + hors-ligne

@@ -1,0 +1,5 @@
+# Configuration Jekyll pour GitHub Pages.
+# Exclut les fichiers de documentation/développement du site publié :
+# ils restent dans le dépôt mais ne sont pas servis à l'adresse du site.
+exclude:
+  - README.md
