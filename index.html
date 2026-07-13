@@ -350,6 +350,13 @@
 
     /* ---------- Lien d'installation + feuille QR (ancrée en bas) ---------- */
     .app-footer { text-align: center; margin: 18px 0 6px; }
+    .app-version {
+      display: block;
+      font-size: 13px;
+      font-weight: bold;
+      color: #555;
+      margin-bottom: 6px;
+    }
     .app-footer a {
       color: var(--green-dark);
       font-size: 14px;
@@ -414,6 +421,7 @@
     </div>
 
     <p class="app-footer">
+      <span id="app-version" class="app-version"></span>
       <a href="#" id="lien-qr">📱 Installer l'application sur mobile (QR code)</a>
     </p>
   </div>
@@ -461,6 +469,10 @@
        motif        : (optionnel) "hachures" -> hachures blanches à 45° sur le fond
        inactif      : true pour masquer l'article (non affiché, non vendable)
      ======================================================================= */
+
+  // Titre de la version, affiché dans le pied de page
+  const VERSION = "2026 Fête de la musique";
+
   const ARTICLES = [
     // --- Colonne 1 (BOISSONS) ---
     { colonne: 1, libelle: "BIÈRE",            prix: 3.00, limite: 30, couleurFond: "#f5e000", couleurTexte: "#000", forme: "cercle" },
@@ -757,6 +769,9 @@
   });
 
   updateTotal();
+
+  // Affiche le titre de version dans le pied de page
+  document.getElementById("app-version").textContent = VERSION;
 
   /* =======================================================================
      SERVICE WORKER — mises à jour automatiques (au prochain lancement) + hors-ligne
