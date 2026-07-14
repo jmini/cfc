@@ -1,17 +1,17 @@
 {
-  "version": "2026 Fête de la musique",
+  "version": "2026 Vinyls",
   "articles": [
-    { "colonne": 1, "libelle": "BIÈRE",            "prix": 3.00, "limite": 30, "couleurFond": "#f5e000", "couleurTexte": "#000", "forme": "cercle" },
-    { "colonne": 1, "libelle": "CIDRE",            "prix": 3.50, "limite": 30, "couleurFond": "#f08a24", "couleurTexte": "#000", "forme": "cercle", "motif": "hachures" },
-    { "colonne": 1, "libelle": "JUS de POMME",     "prix": 2.50, "limite": 30, "couleurFond": "#f08a24", "couleurTexte": "#000", "forme": "cercle" },
-    { "colonne": 1, "libelle": "SOFT",             "prix": 2.00, "limite": 30, "couleurFond": "#ffffff", "couleurTexte": "#000", "forme": "cercle" },
-    { "colonne": 1, "libelle": "CAFÉ",             "prix": 1.00, "limite": 30, "couleurFond": "#000000", "couleurTexte": "#FFF", "forme": "cercle" },
-    { "colonne": 1, "libelle": "",                 "prix": 0.00, "limite": 0,  "couleurFond": "#bdbdbd", "couleurTexte": "#000", "forme": "cercle", "inactif": true },
+    { "colonne": 1, "libelle": "BIÈRE",            "prix": 3.00, "limite": 30, "couleurFond": "#f5e000", "couleurTexte": "#999999", "forme": "cercle" },
+    { "colonne": 1, "libelle": "CIDRE",            "prix": 3.50, "limite": 30, "couleurFond": "#f08a24", "couleurTexte": "#999999", "forme": "cercle", "motif": "hachures" },
+    { "colonne": 1, "libelle": "JUS de POMME",     "prix": 2.50, "limite": 30, "couleurFond": "#f08a24", "couleurTexte": "#999999", "forme": "cercle" },
+    { "colonne": 1, "libelle": "SOFT",             "prix": 2.00, "limite": 30, "couleurFond": "#ffffff", "couleurTexte": "#000000", "forme": "cercle" },
+    { "colonne": 1, "libelle": "CAFÉ",             "prix": 1.00, "limite": 30, "couleurFond": "#000000", "couleurTexte": "#ffffff", "forme": "cercle" },
+    { "colonne": 1, "libelle": "",                 "prix": 0.00, "limite": 0,  "couleurFond": "#bdbdbd", "couleurTexte": "#000000", "forme": "cercle", "inactif": true },
 
-    { "colonne": 2, "libelle": "EAU",              "prix": 1.00, "limite": 30, "couleurFond": "#2e6db4", "couleurTexte": "#cccccc", "forme": "cercle" },
+    { "colonne": 2, "libelle": "EAU",              "prix": 1.00, "limite": 30, "couleurFond": "#2e6db4", "couleurTexte": "#ffffff", "forme": "cercle" },
     { "colonne": 2, "libelle": "Bouteille ROUGE",  "prix": 9.00, "limite": 20, "couleurFond": "#c00000", "couleurTexte": "#cccccc", "forme": "cercle" },
     { "colonne": 2, "libelle": "Bouteille ROSÉ",   "prix": 9.00, "limite": 20, "couleurFond": "#e0218a", "couleurTexte": "#cccccc", "forme": "cercle" },
-    { "colonne": 2, "libelle": "VERRE VIN ou KIR", "prix": 2.00, "limite": 30, "couleurFond": "#7cb342", "couleurTexte": "#000", "forme": "cercle" },
+    { "colonne": 2, "libelle": "VERRE VIN ou KIR", "prix": 2.00, "limite": 30, "couleurFond": "#7cb342", "couleurTexte": "#cccccc", "forme": "cercle" },
     { "colonne": 2, "libelle": "GOBELET",          "prix": 1.00, "limite": 50, "couleurFond": "#e3e3f5", "couleurTexte": "#5a2fa0", "forme": "cercle" },
 
     { "colonne": 3, "libelle": "PLATEAU REPAS",    "prix": 20.00, "limite": 20, "couleurFond": "#000000", "couleurTexte": "#FFF", "forme": "rectangle" },
