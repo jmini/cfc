@@ -12,22 +12,22 @@ hors-ligne.
 | Fichier | Rôle |
 |---|---|
 | `index.html` | L'application (interface, ticket de caisse, QR d'installation). |
-| `config.json` | **Toute la configuration** : titre de version + articles. |
+| [`config.json`](config.json) | **Toute la configuration** : titre de version et liste des articles. |
 | `editeur.html` | Éditeur visuel qui génère le contenu de `config.json`. |
-| `sw.js` | Service worker (mises à jour automatiques + hors-ligne). |
+| [`sw.js`](sw.js) | Service worker (mises à jour automatiques + hors-ligne). |
 | `manifest.json` | Manifeste PWA (nom, icône, mode plein écran). |
 | `apple-touch-icon.png`, `icon-192.png`, `icon-512.png` | Icônes d'application. |
 
 ---
 
-## Configuration (`config.json`)
+## Configuration ([`config.json`](config.json))
 
 C'est le **seul fichier à modifier** pour ajuster les tarifs ou les articles.
 `index.html` le charge automatiquement au démarrage.
 
 ### Format
 
-`config.json` est un fichier **JSON strict** :
+[`config.json`](config.json) est un fichier **JSON strict** :
 
 - pas de commentaire à l'intérieur (d'où ce README) ;
 - pas de virgule après le dernier élément d'une liste ou d'un objet ;
@@ -54,7 +54,7 @@ du lien d'installation. Exemple : `"2026 Fête de la musique"`.
 
 | Champ | Obligatoire | Description |
 |---|:---:|---|
-| `colonne` | ✅ | Colonne d'affichage : `1` & `2` = BOISSONS, `3` = RESTAURATION. |
+| `colonne` | ✅ | Colonne d'affichage : `1` = BOISSONS colone de gauche, `2` = BOISSONS colone de droite, `3` = RESTAURATION. |
 | `libelle` | ✅ | Texte affiché sur la pastille (ex. `"BIÈRE"`). |
 | `prix` | ✅ | Prix unitaire en euros. **Point décimal** (JSON), pas la virgule : `3.00`. |
 | `limite` | ✅ | Quantité maximale vendable (stock max) ; le bouton `+` s'arrête à cette valeur. |
@@ -78,10 +78,8 @@ Les champs facultatifs (`motif`, `inactif`) s'omettent simplement quand ils ne s
 
 Deux méthodes :
 
-1. **À la main** : éditer `config.json` en respectant le format JSON.
-2. **Avec l'éditeur** : ouvrir `editeur.html`, régler les articles et le titre
-   de version, cliquer **Générer le code** puis **Copier**, et remplacer tout le
-   contenu de `config.json` par le résultat.
+1. **À la main** : éditer [`config.json`](config.json) en respectant le format JSON.
+2. **Avec l'[éditeur](https://jmini.github.io/cfc/editeur.html)** : ouvrir la page, régler les articles et le titre de version, le contenu JSON se met à jour dans le cadre inférieur. Cliquer sur  **Copier**, et remplacer tout le contenu de [`config.json`](config.json) par le résultat.
 
 > ⚠️ Après édition, vérifiez que le JSON reste valide : un oubli de virgule ou de
 > guillemet empêche toute la page de se charger.
@@ -91,8 +89,9 @@ Deux méthodes :
 ## Bon à savoir
 
 - **Mise à jour du cache** : après un changement de contenu, incrémentez la ligne
-  `const VERSION = "vX";` dans `sw.js` pour que l'ancienne version en cache soit
+  `const VERSION = "vX";` dans [`sw.js`](sw.js) pour que l'ancienne version en cache soit
   remplacée proprement.
 - **Installation sur mobile** : ouvrir l'URL, puis « Ajouter à l'écran d'accueil »
   (Safari sur iOS, menu ⋮ sur Android). Le QR code est aussi accessible depuis le
   lien en bas de l'application.
+- **Serveur local** : il est possible d'utiliser `python3 -m http.server 8888`
