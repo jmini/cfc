@@ -1,5 +1,5 @@
 {
-  "version": "2026 Vinyls",
+  "version": "Version de test",
   "articles": [
     { "colonne": 1, "libelle": "BIÈRE",            "prix": 3.00, "limite": 30, "couleurFond": "#f5e000", "couleurTexte": "#999999", "forme": "cercle" },
     { "colonne": 1, "libelle": "CIDRE",            "prix": 3.50, "limite": 30, "couleurFond": "#f08a24", "couleurTexte": "#999999", "forme": "cercle", "motif": "hachures" },

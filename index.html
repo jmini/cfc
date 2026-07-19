@@ -471,6 +471,33 @@
 
   const totalEl = document.getElementById("total");
 
+  /* Persistance de la commande en cours (survit au rechargement de la page) */
+  const STORAGE_KEY = "cfc-quantities";
+
+  function sauvegarder() {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(quantities));
+    } catch (e) { /* stockage indisponible : on ignore */ }
+  }
+
+  // Restaure les quantités sauvegardées, uniquement si elles correspondent
+  // au nombre d'articles courant (sinon la config a changé -> on repart à 0).
+  function restaurer() {
+    try {
+      const brut = localStorage.getItem(STORAGE_KEY);
+      if (!brut) return;
+      const sauve = JSON.parse(brut);
+      if (!Array.isArray(sauve) || sauve.length !== quantities.length) return;
+      sauve.forEach((q, i) => {
+        const n = Number(q);
+        if (Number.isFinite(n) && n > 0) {
+          quantities[i] = n;
+          if (cells[i]) cells[i]._qtyEl.textContent = n;
+        }
+      });
+    } catch (e) { /* données illisibles : on ignore */ }
+  }
+
   function formatEuros(value) {
     return value.toFixed(2).replace(".", ",") + " €";
   }
@@ -605,12 +632,14 @@
       quantities[index]++;
       qty.textContent = quantities[index];
       updateTotal();
+      sauvegarder();
     });
     attachRepeat(down, () => {
       if (quantities[index] > 0) {
         quantities[index]--;
         qty.textContent = quantities[index];
         updateTotal();
+        sauvegarder();
       }
     });
 
@@ -648,6 +677,7 @@
       if (cells[i]) cells[i]._qtyEl.textContent = "0";
     }
     updateTotal();
+    sauvegarder();
   }
   document.getElementById("raz").addEventListener("click", resetAll);
 
@@ -775,6 +805,7 @@
     ARTICLES = Array.isArray(config.articles) ? config.articles : [];
     VERSION = config.version || "";
     construireArticles();
+    restaurer();
     updateTotal();
     document.getElementById("app-version").textContent = VERSION;
   }
